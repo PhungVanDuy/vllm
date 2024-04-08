@@ -71,6 +71,11 @@ class OpenAIServing:
             else:
                 token_logprob = None
             token = self.tokenizer.convert_ids_to_tokens(token_id)
+            if type(token) != str:
+                try:
+                    token = token.decode("utf-8")
+                except UnicodeDecodeError:
+                    token = ""
             logprobs.tokens.append(token)
             logprobs.token_logprobs.append(token_logprob)
             if len(logprobs.text_offset) == 0:
@@ -81,8 +86,14 @@ class OpenAIServing:
             last_token_len = len(token)
 
             if num_output_top_logprobs:
+                token = self.tokenizer.convert_ids_to_tokens(i)
+                if type(token) != str:
+                    try:
+                        token = token.decode("utf-8")
+                    except UnicodeDecodeError:
+                        token = ""
                 logprobs.top_logprobs.append({
-                    self.tokenizer.convert_ids_to_tokens(i): p
+                    token: p
                     for i, p in step_top_logprobs.items()
                 } if step_top_logprobs else None)
         return logprobs

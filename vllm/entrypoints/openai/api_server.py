@@ -163,13 +163,13 @@ async def create_completion(request: CompletionRequest, raw_request: Request):
     generator = await openai_serving_completion.create_completion(
         request, raw_request)
     if isinstance(generator, ErrorResponse):
-        return JSONResponse(content=generator.model_dump(),
+        return JSONResponse(content=generator.model_dump(warnings=False),
                             status_code=generator.code)
     if request.stream:
         return StreamingResponse(content=generator,
                                  media_type="text/event-stream")
     else:
-        return JSONResponse(content=generator.model_dump())
+        return JSONResponse(content=generator.model_dump(warnings=False))
 
 
 if __name__ == "__main__":
@@ -227,7 +227,7 @@ if __name__ == "__main__":
     uvicorn.run(app,
                 host=args.host,
                 port=args.port,
-                log_level="info",
+                log_level="warning",
                 timeout_keep_alive=TIMEOUT_KEEP_ALIVE,
                 ssl_keyfile=args.ssl_keyfile,
                 ssl_certfile=args.ssl_certfile)

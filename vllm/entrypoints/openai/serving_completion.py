@@ -207,14 +207,14 @@ def request_output_to_completion_response(
         completion_tokens=num_generated_tokens,
         total_tokens=num_prompt_tokens + num_generated_tokens,
     )
-
-    return CompletionResponse(
+    out = CompletionResponse(
         id=request_id,
         created=created_time,
         model=model_name,
         choices=choices,
         usage=usage,
     )
+    return out
 
 
 def merge_async_iterators(*iterators):
@@ -295,7 +295,7 @@ class OpenAIServingCompletion(OpenAIServing):
                         request, prompt=prompt)
 
                 generators.append(
-                    self.engine.generate(None,
+                    self.engine.generate(None if prompt_is_tokens else prompt,
                                          sampling_params,
                                          f"{request_id}-{i}",
                                          prompt_token_ids=input_ids))

@@ -423,6 +423,7 @@ def _sample(
     return sample_results
 
 
+@torch.no_grad()
 def _get_logprobs(
     logprobs: torch.Tensor,
     sampling_metadata: SamplingMetadata,
@@ -468,7 +469,8 @@ def _get_logprobs(
 
     # Batched query for logprobs of topk tokens
     if largest_num_logprobs > 0:
-        top_logprobs, top_token_ids = torch.topk(logprobs,
+        cpu_logprobs = logprobs.cpu().clone().detach()
+        top_logprobs, top_token_ids = torch.topk(cpu_logprobs,
                                                  largest_num_logprobs,
                                                  dim=-1)
         top_logprobs = top_logprobs.cpu()
